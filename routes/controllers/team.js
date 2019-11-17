@@ -19,8 +19,9 @@ const Controllerteam = {
                 console.dir(obj)
             }
         })
-
     },
+
+
     post: async (req, res) => {
         const file = './routes/controllers/data.json'
 
@@ -41,9 +42,8 @@ const Controllerteam = {
             }
         })
         res.send('new-member successfully added');
-        //
-
     },
+
 
     put: async (req, res) => {
         const file = './routes/controllers/data.json'
@@ -77,9 +77,8 @@ const Controllerteam = {
             }
         })
         res.send('new-member updated added');
-        //
-
     },
+
 
     delete: async (req, res) => {
         console.log("params", req.params.id)
@@ -98,9 +97,8 @@ const Controllerteam = {
             }
         })
         res.status(200).send('deleted');
-        //
-
     },
+
 
     getOne: async (req, res) => {
         let response = {};

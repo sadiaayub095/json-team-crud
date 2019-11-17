@@ -12,6 +12,6 @@ exports = module.exports = function (app) {
      app.get('/api/team', team.get);
      app.get('/api/team/:id', team.getOne);
      app.post('/api/team', team.post);
-    app.put('/api/team/:id', team.put);
-    app.delete('/api/team/:id', team.delete);
+     app.put('/api/team/:id', team.put);
+     app.delete('/api/team/:id', team.delete);
 };
