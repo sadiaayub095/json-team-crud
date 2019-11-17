@@ -62,17 +62,17 @@ const Controllerteam = {
             }
             else {
                 await data.forEach(sin =>{
-                    if(sin.id === req.body.id){
-                        // Object.keys(req.body).forEach(single=>{
-                        //     sin[single]= req.body[single]
-                        //     }
-                        //)
-                            sin.name = req.body.name;
-                            sin.company =  req.body.company;
-                            sin.email = req.body.email;
-                            sin.sinphone = req.body.phone;
-                            sin.address =req.body.address;
-                            sin.id = req.body.id;
+                    if(sin.id === req.params.id){
+                        Object.keys(req.body).forEach(single=>{
+                            sin[single]= req.body[single]
+                            }
+                        )
+                        //     sin.name = req.body.name;
+                        //     sin.company =  req.body.company;
+                        //     sin.email = req.body.email;
+                        //     sin.sinphone = req.body.phone;
+                        //     sin.address =req.body.address;
+                        //     sin.id = req.body.id;
                     }
 
                 })
@@ -89,7 +89,7 @@ const Controllerteam = {
     },
 
     delete: async (req, res) => {
-        console.log("query", req.query.id)
+        console.log("params", req.params.id)
         const file = './routes/controllers/data.json'
 
 
@@ -98,7 +98,7 @@ const Controllerteam = {
                 console.error(err)
             }
             else {
-                jsonfile.writeFile(file, data.filter(item=>item.id !== req.query.id ), function (err) {
+                jsonfile.writeFile(file, data.filter(item=>item.id !== req.params.id ), function (err) {
                     if (err) console.error(err)
                 })
                 //console.log('sad', req.body);
