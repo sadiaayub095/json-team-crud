@@ -30,16 +30,9 @@ const Controllerteam = {
                 console.error(err)
             }
             else {
-                const obj = {
-                    name: req.body.name,
-                    company: req.body.company,
-                    email: req.body.email,
-                    phone: req.body.phone,
-                    address: req.body.address
-                }
+                const obj = {...req.body}
                 obj.id = uuid()
                 await data.push(obj);
-
                 jsonfile.writeFile(file, data, function (err) {
                     if (err) console.error(err)
 
