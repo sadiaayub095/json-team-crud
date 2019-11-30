@@ -7,6 +7,7 @@ const uuid = require('uuid');
 //const bcrypt = require('bcrypt');
 const jsonwebtoken = require('jsonwebtoken');
 const axios = require('axios');
+const config = require('../../configration/config.json');
 
 
 const Controllerteam = {
@@ -57,10 +58,12 @@ const Controllerteam = {
                 console.error(err)
             }
             else {
-                await data.forEach(sin =>{
-                    if(sin.id === req.params.id){
-                        Object.keys(req.body).forEach(single=>{
-                            sin[single]= req.body[single]
+                await data.forEach(sin => {
+                    if (sin.id === req.params.id) {
+                        Object.keys(req.body).forEach(single => {
+
+                                sin[single] = req.body[single]
+
                             }
                         )
                         //     sin.name = req.body.name;
@@ -93,7 +96,7 @@ const Controllerteam = {
                 console.error(err)
             }
             else {
-                jsonfile.writeFile(file, data.filter(item=>item.id !== req.params.id ), function (err) {
+                jsonfile.writeFile(file, data.filter(item => item.id !== req.params.id), function (err) {
                     if (err) console.error(err)
                 })
                 //console.log('sad', req.body);
@@ -114,78 +117,94 @@ const Controllerteam = {
                 response.status = 200;
                 response.body = {
                     message: "single",
-                    data: data.find(item=>item.id === req.params.id)
+                    data: data.find(item => item.id === req.params.id)
                 };
                 res.status(response.status).send(JSON.stringify(response.body));
             }
         })
     },
 
-    // login: (req, res) => {
-    //     const response = {};
-    //     try {
-    //         data.json.findOne({
-    //             where: { email:req.body.email }
-    //         }).then((user)=>{
-    //             if (!user) {
-    //                 //throw new Error('No user with that email')
-    //                 response.statusCode = 500;
-    //                 response.body = JSON.stringify({
-    //                     message: 'Incorrect credentials',
-    //                     data: ""
-    //                 });
-    //                 res.status(response.statusCode).send(response.body);
-    //             }
-    //             else {
-    //                 bcrypt.compare(req.body.password, user.password)
-    //                     .then(valid => {
-    //                         if (!valid) {
-    //                             //throw new Error('No user with that email')
-    //                             response.statusCode = 404;
-    //                             response.body = JSON.stringify({
-    //                                 message: 'Incorrect credentials',
-    //                                 data: ""
-    //                             });
-    //                             res.status(response.statusCode).send(response.body);
-    //                         }
-    //                         else {
-    //                             // signin user and generate a jwt
-    //                             const token = jsonwebtoken.sign({
-    //                                 id: user.id,
-    //                                 email: user.email,
-    //                                 firstName: user.firstName
-    //                             }, config.jwt.secret, { expiresIn: '1y' })
-    //
-    //                             // return json web token
-    //                             response.statusCode = 200;
-    //                             response.body = JSON.stringify({
-    //                                 message: 'User LoggedIN',
-    //                                 data: "",
-    //                                 token: token
-    //                             });
-    //                             res.status(response.statusCode).send(response.body);
-    //                         }
-    //                     })
-    //             }
-    //         })
-    //             .catch(err=>{
-    //                 response.statusCode = 500;
-    //                 response.body = JSON.stringify({err});
-    //                 res.status(response.statusCode).send(response.body);
-    //             });
-    //     } catch (err) {
-    //         response.statusCode = 500;
-    //         response.body = JSON.stringify({err});
-    //         res.status(response.statusCode).send(response.body);
-    //     }
-    // },
+    login: async (req, res) => {
+        const response = {};
+        try {
+            let {email, password} = req.body;
+            if (!email) {
+                response.statusCode = 404;
+                response.body = JSON.stringify({
+                    message: 'Email is required'
+                });
+                res.status(response.statusCode).send(response.body);
+            }
+            if (!password) {
+                response.statusCode = 404;
+                response.body = JSON.stringify({
+                    message: 'Password is required'
+                });
+                res.status(response.statusCode).send(response.body);
+            }
+            if (password && email) {
+                const file = './routes/controllers/credentials.json';
+                await jsonfile.readFile(file, async (err, data) => {
+                    if (err) {
+                        console.error(err)
+                        response.statusCode = 500;
+                        response.body = JSON.stringify({err});
+                        res.status(response.statusCode).send(response.body);
+                    }
+                    else {
+                        let user = data.find(sin => sin.email === email);
+                        if (!user) {
+                            //throw new Error('No user with that email')
+                            response.statusCode = 500;
+                            response.body = JSON.stringify({
+                                message: 'Incorrect email',
+                                data: ""
+                            });
+                            res.status(response.statusCode).send(response.body);
+                        }
+                        else if (req.body.password !== user.password) {
+                            // throw new Error('No user with that email')
+                            response.statusCode = 404;
+                            response.body = JSON.stringify({
+                                message: 'Incorrect password',
+                                data: ""
+                            });
+                            res.status(response.statusCode).send(response.body);
+                        }
+                        else {
+                            // signin user and generate a jwt
+                            const token = jsonwebtoken.sign({
+                                email: user.email,
+                            }, config.jwt.secret, {expiresIn: '1y'})
 
-    numberValidation: (req,res) => {
+                            // return json web token
+                            response.statusCode = 200;
+                            response.body = JSON.stringify({
+                                message: 'User LoggedIN',
+                                data: "",
+                                token: token
+                            });
+                            res.status(response.statusCode).send(response.body);
+                        }
+                    }
+                })
+            }
+        }
+        catch (err) {
+            console.log("errr". err);
+            response.statusCode = 500;
+            response.body = JSON.stringify({err});
+            res.status(response.statusCode).send(response.body);
+        }
+    },
+
+
+    numberValidation: (req, res) => {
         const telephone1 = req.body.phone;
         const response = {};
-        axios.post('https://www.national-debt-help.org.uk/HomeLocRegValidationCheck.php?telephone1='+telephone1)
+        axios.post('https://www.national-debt-help.org.uk/HomeLocRegValidationCheck.php?telephone1=' + telephone1)
             .then(ress => {
-                if ( ress.data.status === 1) {
+                if (ress.data.status === 1) {
                     response.statusCode = 200;
                     response.body = JSON.stringify({
                         message: 'mobile number valid',
@@ -237,10 +256,6 @@ const Controllerteam = {
     // }
     //
     // },
-
-
-
-
 
 
 };
