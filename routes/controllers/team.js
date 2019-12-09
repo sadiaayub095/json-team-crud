@@ -175,7 +175,7 @@ const Controllerteam = {
                             // signin user and generate a jwt
                             const token = jsonwebtoken.sign({
                                 email: user.email,
-                            }, config.jwt.secret, {expiresIn: '1y'})
+                            }, config.jwt.secret, {expiresIn: '5s'})
 
                             // return json web token
                             response.statusCode = 200;
@@ -191,13 +191,86 @@ const Controllerteam = {
             }
         }
         catch (err) {
-            console.log("errr". err);
+            console.log("errr".err);
             response.statusCode = 500;
             response.body = JSON.stringify({err});
             res.status(response.statusCode).send(response.body);
         }
     },
 
+    signUp: async (req, res) => {
+        const response = {};
+        try {
+            let {email, password} = req.body;
+            if (!email) {
+                response.statusCode = 404;
+                response.body = JSON.stringify({
+                    message: 'Email is required'
+                });
+                res.status(response.statusCode).send(response.body);
+            }
+            if (!password) {
+                response.statusCode = 404;
+                response.body = JSON.stringify({
+                    message: 'Password is required'
+                });
+                res.status(response.statusCode).send(response.body);
+            }
+            if (email && password) {
+                const file = './routes/controllers/credentials.json';
+                await jsonfile.readFile(file, async (err, data) => {
+                    if (err) {
+                        console.error(err)
+                        response.statusCode = 500;
+                        response.body = JSON.stringify({err});
+                        res.status(response.statusCode).send(response.body);
+                    }
+                    else {
+                       let user = await data.find(item => item.email === email);
+
+                        if (user) {
+                            //throw new Error('user with that email already exist')
+                            response.statusCode = 500;
+                            response.body = JSON.stringify({
+                                message: 'email is already existing',
+                                data: ""
+                            });
+                             await res.status(response.statusCode).send(response.body);
+                        }
+                        else {
+                            const obj = {...req.body}
+                             obj.id = await uuid()
+                            await data.push(obj);
+                            await jsonfile.writeFile(file, data, function (err) {
+                                if (err) console.error(err)
+
+                            })
+                            // signin user and generate a jwt
+                            const token = await jsonwebtoken.sign({
+                                email: email,
+                            }, config.jwt.secret, {expiresIn: '1y'})
+
+                            // // return json web token
+                            response.statusCode = 200;
+                            response.body = JSON.stringify({
+                                message: 'User LoggedIN',
+                                data: "",
+                                token: token
+                            });
+                            await res.status(response.statusCode).send(response.body);
+                        }
+                    }
+                })
+
+            }
+        }
+        catch (err) {
+            console.log("errr".err);
+            response.statusCode = 500;
+            response.body = JSON.stringify({err});
+            res.status(response.statusCode).send(response.body);
+        }
+    },
 
     numberValidation: (req, res) => {
         const telephone1 = req.body.phone;
@@ -222,41 +295,14 @@ const Controllerteam = {
                 }
             })
             .catch(err => {
-                response.statusCode = 509;
-                response.body = JSON.stringify({
-                    message: err,
-                });
-                res.status(response.statusCode).send(response.body);
-            });
-
+                    response.statusCode = 509;
+                    response.body = JSON.stringify({
+                        message: err,
+                    });
+                    res.status(response.statusCode).send(response.body);
+                }
+            );
     },
-
-    // numbervalidation: (req,res) => {
-    //
-    //     Numbervalidation:axios.post('/phonevalidation', {
-    //         telephone1: ' '
-    //     })
-    //         .then(function (response) {
-    //             if ( response.body.status === 1) {
-    //                 response.statusCode = 200;
-    //                 response.body = JSON.stringify({
-    //                     message: 'mobile number valid',
-    //                 });
-    //             }
-    //             console.log(response);
-    //         })
-    //         .catch(function (error) {
-    //             if ( response.body.status === 1) {
-    //                 response.statusCode = 509;
-    //                 response.body = JSON.stringify({
-    //                     message: 'mobile number invalid',
-    //                 });}
-    //             console.log(error);
-    //         }),
-    // }
-    //
-    // },
-
 
 };
 
